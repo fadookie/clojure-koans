@@ -30,8 +30,14 @@
   "Reducing can increase the result"
   (= 24 (reduce (fn [a b] (* a b)) [1 2 3 4]))
 
-  "Push it" ; -Eliot
-  (= 24 (reduce (fn [a b] (conj (list a) (list b))) [1 2 3 4]))
+  "Nested list reduce" ; -Eliot
+  (= '((4) ((3) ((2) 1))) (reduce (fn [a b] (conj (list a) (list b))) [1 2 3 4]))
+
+  "Ghetto java-style type check"
+  (= (type #{1}) clojure.lang.PersistentHashSet)
+
+  "Idiomatic clojure type check :)"
+  (set? #{1})
 
   "I accidentally just re-implemented set, oops." ; -Eliot
   (= #{1 2 3 4} (reduce (fn [a b] (cond
@@ -43,23 +49,12 @@
           [1 1 2 2 2 3 3 3 4 3 3 1])
   )
 
-  "Push it in a less crappy way" ; -Eliot
-  (= 24 (reduce (fn [a b] (cond
-                            (list? a) (conj a b)) [1 2 3 4]))
-
-(defmulti elementSet class)
-
-(set? #{1})
-
-(defmethod elementSet :collection [a b] (clojure.set/union #{a} #{b}))
-
-(clojure.set/union 1 #{2 3})
-
-(isa? #{1} clojure.lang.PersistentHashSet)
-
-(= (type #{1}) clojure.lang.PersistentHashSet)
-
-(reduce (fn [a b] (clojure.set/union #{a} #{b}))) [1 2 3 4])
+  "Push onto a list with a reduce operation" ; -Eliot
+  (= [1 2 3 4] (reverse (reduce (fn [a b] (if
+                                    (list? a) (conj a b)
+                                    (list b a)
+                                 ))
+                       [1 2 3 4])))
 
   "You can start somewhere else"
   (= 2400 (reduce (fn [a b] (* a b)) __ [1 2 3 4]))
